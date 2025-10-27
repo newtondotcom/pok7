@@ -16,18 +16,17 @@ Une application moderne de pokes à la Meta avec des fonctionnalités temps rée
 ## 🛠️ Stack Technique
 
 ### Frontend
-- **React 19** - Bibliothèque UI moderne avec les dernières fonctionnalités
-- **TypeScript** - Typage statique pour la sécurité du code
-- **TanStack Router** - Routage basé sur les fichiers avec sécurité des types
-- **TanStack Query** - Gestion d'état serveur et cache intelligent
-- **Vite** - Build tool ultra-rapide avec HMR
-- **TailwindCSS 4** - Framework CSS utilitaire-first nouvelle génération
-- **Radix UI** - Composants UI accessibles et headless
-- **shadcn/ui** - Composants UI réutilisables basés sur Radix
-- **Zustand** - Gestion d'état légère et performante
-- **React Flip Toolkit** - Animations fluides et transitions
-- **PWA** - Application Web Progressive avec Service Workers
-- **OAuth2 PKCE** - Authentification sécurisée
+- **TypeScript** - For type safety and improved developer experience
+- **TanStack Router** - File-based routing with full type safety
+- **TailwindCSS** - Utility-first CSS for rapid UI development
+- **shadcn/ui** - Reusable UI components
+- **Fastify** - Fast, low-overhead web framework
+- **Bun** - Runtime environment
+- **Drizzle** - TypeScript-first ORM
+- **PostgreSQL** - Database engine
+- **Authentication** - Better-Auth
+- **Turborepo** - Optimized monorepo build system
+- **PWA** - Progressive Web App support
 
 ### Backend
 - **Fastify** - Framework serveur Node.js ultra-rapide
@@ -47,196 +46,66 @@ Une application moderne de pokes à la Meta avec des fonctionnalités temps rée
 - **Buf** - Outils Protocol Buffers modernes
 - **Drizzle Kit** - Outils de migration et introspection DB
 
-## 🚀 Démarrage Rapide
+## Getting Started
 
-### Prérequis
-- [Bun](https://bun.sh/) (version 1.2.17+)
-- [Docker](https://docker.com/) (pour PostgreSQL et Redis)
+First, install the dependencies:
 
-### Installation
-
-1. **Cloner le projet**
-```bash
-git clone <votre-repo>
-cd pok7
-```
-
-2. **Installer les dépendances**
 ```bash
 bun install
 ```
+## Database Setup
 
-3. **Configuration de l'environnement**
-```bash
-cd apps/server
-cp .env.example .env
-# Éditer .env avec vos variables d'environnement
-```
+This project uses PostgreSQL with Drizzle ORM.
 
-4. **Démarrer les services**
-```bash
-# Démarrer PostgreSQL et Redis
-docker-compose up -d
+1. Make sure you have a PostgreSQL database set up.
+2. Update your `apps/server/.env` file with your PostgreSQL connection details.
 
-# Ou utiliser les services locaux si configurés
-```
-
-5. **Initialiser la base de données**
+3. Apply the schema to your database:
 ```bash
 bun db:push
 ```
 
-6. **Lancer l'application**
+
+Then, run the development server:
+
 ```bash
-# Démarrer le serveur et le frontend
 bun dev
-
-# Ou démarrer séparément
-bun dev:server  # API sur http://localhost:3000
-bun dev:web     # Frontend sur http://localhost:3001
 ```
 
-## 📁 Structure du Projet
+Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
+The API is running at [http://localhost:3000](http://localhost:3000).
+
+
+
+
+
+
+
+## Project Structure
 
 ```
-pok7/
+test/
 ├── apps/
-│   ├── web/                 # Application frontend React
-│   │   ├── src/
-│   │   │   ├── components/  # Composants réutilisables (UI, sheets, etc.)
-│   │   │   ├── routes/      # Pages et routage TanStack Router
-│   │   │   ├── stores/      # Gestion d'état Zustand
-│   │   │   ├── hooks/       # Hooks personnalisés
-│   │   │   ├── lib/         # Utilitaires et helpers
-│   │   │   ├── rpc/         # Types Protocol Buffers générés
-│   │   │   └── utils/       # Fonctions utilitaires
-│   │   ├── public/          # Assets statiques et PWA
-│   │   └── dist/            # Build de production
-│   └── server/              # API backend Fastify + Connect RPC
-│       ├── src/
-│       │   ├── rpc/         # Implémentations Connect RPC
-│       │   │   ├── implementations/  # Services protobuf
-│       │   │   └── proto/    # Types protobuf générés
-│       │   ├── db/          # Schémas Drizzle et configuration
-│       │   ├── lib/         # Utilitaires serveur (Redis, WebPush, etc.)
-│       │   └── index.ts     # Point d'entrée Fastify
-│       ├── proto/           # Définitions Protocol Buffers
-│       ├── drizzle.config.ts
-│       └── Containerfile    # Docker pour production
-├── compose.yml              # Configuration Docker (PostgreSQL + Redis)
-└── turbo.json              # Configuration Turborepo
+│   ├── web/         # Frontend application (React + TanStack Router)
+│   └── server/      # Backend API (Fastify)
+├── packages/
+│   ├── auth/        # Authentication configuration & logic
+│   └── db/          # Database schema & queries
 ```
 
-## 🗄️ Base de Données
+## Available Scripts
 
-### Schémas Principaux
-- **Users** - Gestion des utilisateurs et authentification
-- **Pokes** - Système de poke entre utilisateurs avec visibilité leaderboard
-- **WebPush** - Notifications push et subscriptions
-- **Leaderboard** - Classements et statistiques anonymisées
+- `bun dev`: Start all applications in development mode
+- `bun build`: Build all applications
+- `bun dev:web`: Start only the web application
+- `bun dev:server`: Start only the server
+- `bun check-types`: Check TypeScript types across all apps
+- `bun db:push`: Push schema changes to database
+- `bun db:studio`: Open database studio UI
+- `cd apps/web && bun generate-pwa-assets`: Generate PWA assets
+- `cd apps/web && bun desktop:dev`: Start Tauri desktop app in development
+- `cd apps/web && bun desktop:build`: Build Tauri desktop app
 
-### Commandes Utiles
-```bash
-# Appliquer les changements de schéma
-bun db:push
-
-# Ouvrir l'interface de gestion de la DB
-bun db:studio
-
-# Générer des migrations
-bun db:generate
-
-# Appliquer les migrations
-bun db:migrate
-
-# Démarrer l'infrastructure (PostgreSQL + Redis)
-bun dev:server dev-infra
-```
-
-## 📜 Scripts Disponibles
-
-| Commande | Description |
-|----------|-------------|
-| `bun dev` | Démarre tous les services en mode développement |
-| `bun build` | Compile tous les projets |
-| `bun dev:web` | Démarre uniquement le frontend (port 3001) |
-| `bun dev:server` | Démarre uniquement l'API (port 8080) |
-| `bun check-types` | Vérifie les types TypeScript |
-| `bun db:push` | Applique les changements de schéma |
-| `bun db:studio` | Ouvre l'interface de gestion de la DB |
-| `bun db:generate` | Génère les migrations Drizzle |
-| `bun db:migrate` | Applique les migrations |
-
-## 🔧 Configuration
-
-### Variables d'Environnement
-
-#### Server (.env)
-```bash
-# Base de données PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/pok7"
-
-# Redis pour les sessions et cache
-REDIS_URL="redis://localhost:6379"
-
-# Notifications Push Web (VAPID)
-VAPID_EMAIL="your-email@example.com"
-VAPID_PUBLIC_KEY="your-vapid-public-key"
-VAPID_PRIVATE_KEY="your-vapid-private-key"
-
-# Configuration serveur
-NODE_ENV="development"
-LOG_LEVEL="info"
-HOST="0.0.0.0"
-PORT="8080"
-
-# CORS - Origines autorisées (séparées par des virgules)
-ALLOWED_ORIGINS="http://localhost:3001,https://pokes.myr-project.eu"
-
-# Redis Connection Pool
-REDIS_MAX_CONNECTIONS="10"
-```
-
-#### Web (.env)
-```bash
-# URL du serveur backend
-VITE_SERVER_URL="http://localhost:8080"
-
-# Notifications Push Web (VAPID Public Key pour le frontend)
-VITE_VAPID_PUBLIC_KEY="your-vapid-public-key"
-```
-
-#### Configuration OAuth2 (Hardcodée)
-```typescript
-// Configuration OAuth2 centralisée dans main.tsx
-const authConfig = {
-  clientId: "t9xFI53nHMTMRduUB1Kt2fUpV1IcFOfNXUZHjpmZ",
-  authorizationEndpoint: "https://myr-project.eu/application/o/authorize/",
-  tokenEndpoint: "https://myr-project.eu/application/o/token/",
-  redirectUri: window.location.origin,
-  scope: "profile openid offline_access picture",
-};
-```
-
-## 🚀 Déploiement
-
-### Production
-```bash
-# Build de production
-bun build
-
-# Démarrage en production
-bun start
-```
-
-### Docker
-```bash
-# Build de l'image
-docker build -f apps/server/Containerfile -t pok7-server .
-
-# Exécution
-docker run -p 3000:3000 pok7-server
-```
 
 ## 🤝 Contribution
 
