@@ -1,4 +1,4 @@
-import { Home, Plus, Trophy, User } from "lucide-react";
+import { Plus, Trophy, User } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 export function Navigation() {

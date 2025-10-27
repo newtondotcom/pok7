@@ -100,7 +100,7 @@ function AccountPage() {
               });
             valid = !!getWebPushQuery;
           }
-        } catch (e) {
+        } catch {
           // ignore
         }
       }

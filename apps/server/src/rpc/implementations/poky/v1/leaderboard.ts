@@ -23,7 +23,7 @@ import { and, desc, eq, inArray, or } from "drizzle-orm";
 export class LeaderboardServiceImpl
   implements ServiceImpl<typeof LeaderboardService>
 {
-  async getLeaderboard(req: GetLeaderboardRequest, context: HandlerContext) {
+  async getLeaderboard(_req: GetLeaderboardRequest, _context: HandlerContext) {
     try {
       // Get top 50 poke relations ordered by count (highest first)
       const topPokeRelations = await db
