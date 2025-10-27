@@ -21,9 +21,10 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@poky/db": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@poky/db": "workspace:*"
+    "drizzle-orm": "^0.44.7",
+    "zod": "catalog:"
   }
 }
