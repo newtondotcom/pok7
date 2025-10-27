@@ -15,12 +15,8 @@ export default defineConfig({
       srcDir: "public",
       filename: "sw.js",
       injectRegister: "auto",
-      includeAssets: [
-        "favicon.ico",
-        "android-chrome-192x192.png",
-        "android-chrome-512x512.png",
-        "apple-touch-icon.png",
-      ],
+      pwaAssets: { disabled: false, config: true },
+      devOptions: { enabled: true },
       manifest: {
         name: "pok7",
         short_name: "pok7",
