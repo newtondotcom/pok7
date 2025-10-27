@@ -2,23 +2,27 @@ import { createFileRoute } from "@tanstack/react-router";
 import { UserPokes } from "@/components/user-pokes";
 import { Navigation } from "@/components/navigation";
 import UserMenu from "@/components/user-menu";
-import { LoaderZap } from "@/components/ui/loader";
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { toast } from '@pheralb/toast';
 import { useNavigate } from "@tanstack/react-router";
-import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
+import { authClient } from "@/lib/auth-client";
+import Loader from "@/components/loader";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
 });
 
 function HomeComponent() {
-  const { tokenData, token}: IAuthContext = useContext(AuthContext)
   const navigate = useNavigate();
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) {
+    return <Loader />;
+  }
 
   useEffect(() => {
-    if (token) {
-      const userKey = `hasLoggedIn:${tokenData?.sub}`;
+    if (session) {
+      const userKey = `hasLoggedIn:${session?.user.id}`;
       if (!localStorage.getItem(userKey)) {
         toast.info({
           text: "Welcome! Enable notifications for the best experience.",
@@ -32,11 +36,11 @@ function HomeComponent() {
         localStorage.setItem(userKey, "true");
       }
     }
-  }, [token, navigate]);
+  }, [session, navigate]);
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
-      {!token ? <UserMenu /> : <><Navigation /><UserPokes /></>}
+      {!session ? <UserMenu /> : <><Navigation /><UserPokes /></>}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { devices, webpush } from "@/db/schema";
+import { devices, webpush } from "@/db/schema/auth";
 import logger from "@/lib/logger";
 import { sendWebPush } from "@/lib/webpush";
 import { kUserId } from "@/rpc/context";

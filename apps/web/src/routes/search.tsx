@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Loader2, Search, User, Calendar, Zap } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect} from "react";
 import { useQuery } from "@connectrpc/connect-query";
 import { PokeButton } from "@/components/poke-button";
 import { formatDistanceToNow } from "date-fns";
 import { SearchResultSkeleton } from "@/components/skeletons/search-result";
 import { PokesService, type SearchUserResult } from "@/rpc/proto/poky/v1/pokes_service_pb";
-import { type IAuthContext, AuthContext } from "react-oauth2-code-pkce";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
+import Loader from "@/components/loader";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/search")({
   component: SearchPage,
@@ -16,11 +17,16 @@ export const Route = createFileRoute("/search")({
 
 function SearchPage() {
   const navigate = useNavigate();
-  const { token}: IAuthContext = useContext(AuthContext);
-  if (!token) {
+  const { data: session, isPending } = authClient.useSession();
+  if (!session) {
       navigate({ to: "/" });
       return null;
   }
+
+  if (isPending) {
+    return <Loader />;
+  }
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { pokes, user } from "@/db/schema";
+import { pokes, user } from "@/db/schema/auth";
 import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { eq, or } from "drizzle-orm";
@@ -53,7 +53,7 @@ export async function getUserPokesData(userId: string) {
       id: user.id,
       name: user.name,
       username: user.username,
-      image: user.picture,
+      image: user.image,
     })
     .from(user)
     .where(or(...otherUserIds.map((id) => eq(user.id, id))));

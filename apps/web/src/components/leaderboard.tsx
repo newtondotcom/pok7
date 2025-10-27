@@ -105,7 +105,7 @@ export function Leaderboard() {
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-white/20 flex items-center justify-center ring-2 ring-white/30 flex-shrink-0">
                     <img
-                      src={entry.userA?.picture || undefined}
+                      src={entry.userA?.image || undefined}
                       alt={entry.userA?.username || undefined}
                       className="w-full h-full object-cover"
                     />
@@ -121,7 +121,7 @@ export function Leaderboard() {
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-white/20 flex items-center justify-center ring-2 ring-white/30 flex-shrink-0">
                     <img
-                      src={entry.userB?.picture || undefined}
+                      src={entry.userB?.image || undefined}
                       alt={entry.userB?.username || undefined}
                       className="w-full h-full object-cover"
                     />

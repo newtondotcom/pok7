@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { user } from "@/db/schema";
+import { user } from "@/db/schema/auth";
 import { generateUserAnonymizedData } from "@/lib/anonymization";
 import type { Interceptor } from "@connectrpc/connect";
 import { Code, ConnectError } from "@connectrpc/connect";
@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { kUserId } from "./context";
 import logger from "@/lib/logger";
+import { auth } from "@/lib/auth";
 
 // -----------------------------------------------------------------------------
 // CONFIG
@@ -62,7 +63,7 @@ async function createUserInBackgroundIfNeeded(oauthToken: any, userId: string) {
       // Check if values have changed and update if necessary
       const hasChanged = 
         existing.username !== (userInfo.preferred_username || "") ||
-        existing.picture !== (userInfo.picture || null) ||
+        existing.image !== (userInfo.image || null) ||
         existing.email !== userInfo.email
 
       if (hasChanged) {
@@ -71,7 +72,7 @@ async function createUserInBackgroundIfNeeded(oauthToken: any, userId: string) {
           .update(user)
           .set({
             username: userInfo.preferred_username,
-            picture: userInfo.picture,
+            picture: userInfo.image,
             email: userInfo.email || "none",
             updatedAt: new Date(),
           })
@@ -90,11 +91,11 @@ async function createUserInBackgroundIfNeeded(oauthToken: any, userId: string) {
       id: userId,
       name: userInfo.name || "none",
       username: userInfo.preferred_username,
-      picture: userInfo.picture,
+      picture: userInfo.image,
       email: userInfo.email || "none",
       emailVerified: true,
       usernameAnonymized: anonymized.usernameAnonymized,
-      pictureAnonymized: anonymized.pictureAnonymized,
+      pictureAnonymized: anonymized.imageAnonymized,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -135,46 +136,21 @@ export const authInterceptor: Interceptor = (next) => async (req) => {
       Code.Unauthenticated,
     );
   };
-
-  const token = authHeader.slice("Bearer ".length);
-
-  // 🔍 Check cache
-  const cached = tokenCache.get(token);
-  const now = Math.floor(Date.now() / 1000);
-  if (cached && cached.exp > now) {
-    // still valid
-    req.contextValues.set(kUserId, cached.userId);
-    return next(req);
-  }
-
-  // 🔐 Verify token
-  let payload;
-  try {
-    payload = await verifyToken(token);
-  } catch (err) {
-    logger.error("Token verification failed:", err);
-    throw new ConnectError("Invalid or expired token", Code.Unauthenticated);
-  }
-
-  // 🧾 Get user ID from payload and ensure user exists in background
-  const userId = payload?.sub;
-  if (!userId) {
-    throw new ConnectError("Invalid token: missing user ID", Code.Unauthenticated);
-  }
-
-  // Ensure user exists in database (non-blocking)
-  createUserInBackgroundIfNeeded(token,userId);
   
-  logger.debug("user ID added to context")
-
-  // 🧠 Cache it until the JWT expires
-  tokenCache.set(token, {
-    userId: userId,
-    exp: payload?.exp || now + 3600, // fallback: 1 hour
+  const session = await auth.api.getSession({
+    headers: req.header,
   });
 
+  if (!session) {
+    logger.error("Missing or invalid Authorization header");
+    throw new ConnectError(
+      "Missing or invalid Authorization header",
+      Code.Unauthenticated,
+    );
+  }
+
   // Add user ID to context
-  req.contextValues.set(kUserId, userId);
+  req.contextValues.set(kUserId, session?.user.id);
 
   return next(req);
 };

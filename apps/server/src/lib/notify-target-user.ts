@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { sendWebPush } from "@/lib/webpush";
 import logger from "@/lib/logger";
-import { webpush } from "@/db/schema";
+import { webpush } from "@/db/schema/auth";
 
 export async function notifyTargetUser(targetUserId: string) {
   const [sub] = await db

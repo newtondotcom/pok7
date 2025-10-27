@@ -1,12 +1,26 @@
 import DynamicText from "./kokonutui/dynamic-text";
-import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
-import { useContext } from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "@pheralb/toast";
 
 export default function UserMenu() {
-  const { logIn, error }: IAuthContext = useContext(AuthContext);
+  const { error } = authClient.useSession();
 
-  const onSignInUnAuth = () => {
-    logIn();
+  const onSignInUnAuth = async () => {
+    await authClient.signIn.oauth2({
+      providerId: "unisson",
+      callbackURL: "/"
+  }, {
+      onSuccess: () => {
+          toast.success({
+            text: "Successfully signed in"
+          });
+      },
+      onError: (error) => {
+        toast.error({
+          text: error.error.message ?? "Unknown error"
+        });
+      }
+  });
   };
 
   if (!error) {

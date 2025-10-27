@@ -1,5 +1,6 @@
 import Loader from "@/components/loader";
 import { useTheme } from "@/components/theme-provider";
+import { authClient } from "@/lib/auth-client";
 import { getBrowserName, getDeviceId, getOSName } from "@/lib/device_id";
 import { LeaderboardService } from "@/rpc/proto/poky/v1/leaderboard_service_pb";
 import { WebPushService } from "@/rpc/proto/poky/v1/webpush_service_pb";
@@ -7,8 +8,7 @@ import { useMutation, useQuery } from "@connectrpc/connect-query";
 import { toast } from "@pheralb/toast";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Bell, Loader2, LogOut, Moon, RotateCcw, Sun, TestTube } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/account")({
   component: AccountPage,
@@ -27,10 +27,14 @@ function urlBase64ToUint8Array(base64String: string) {
 
 function AccountPage() {
   const navigate = useNavigate();
-  const { tokenData, token,logOut}: IAuthContext = useContext(AuthContext);
-  if (!token) {
+  const { data: session, isPending } = authClient.useSession();
+  if (!session) {
       navigate({ to: "/" });
       return null;
+  }
+
+  if (isPending) {
+    return <Loader />;
   }
 
   const { setTheme, theme } = useTheme();
@@ -239,21 +243,21 @@ function AccountPage() {
             <div className="flex flex-col items-center text-center">
               {/* User Avatar */}
               <div className="w-24 h-24 rounded-full mb-4 ring-2 ring-white/30 overflow-hidden bg-white/20 flex items-center justify-center">
-                {tokenData.picture ? (
+                {session.user.image ? (
                   <img
-                    src={tokenData.picture}
-                    alt={tokenData.nickname || "Profile picture"}
+                    src={session.user.image}
+                    alt={session.user.username || "Profile picture"}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-2xl font-semibold text-white/70">
-                    {tokenData.nickname ? getInitials(tokenData.nickname) : "U"}
+                    {session.user.username ? getInitials(session.user.username) : "U"}
                   </span>
                 )}
               </div>
 
               {/* User Info */}
-              <h2 className="text-md font-semibold mb-1">{tokenData.nickname || "User"}</h2>
+              <h2 className="text-md font-semibold mb-1">{session.user.username || "User"}</h2>
 
               {/* Anonymized Data Section */}
               <div className="w-full mb-6 p-4 bg-white/10 rounded-lg border border-white/20">
@@ -265,7 +269,7 @@ function AccountPage() {
                       <div className="w-12 h-12 rounded-full overflow-hidden bg-white/20 flex items-center justify-center">
                         {anonymizedDataQuery.isLoading ? (
                           <Loader />
-                        ) : anonymizedDataQuery.data?.pictureAnonymized ? (
+                        ) : anonymizedDataQuery.data? (
                           <img
                             src={anonymizedDataQuery.data.pictureAnonymized}
                             alt="Anonymous avatar"
@@ -374,7 +378,7 @@ function AccountPage() {
                 {/* Logout Button */}
                 <button
                   onClick={() => {
-                    logOut();
+                    authClient.signOut();
                     navigate({ to: "/" });
                   }}
                   className="w-full flex items-center justify-between p-3 bg-white/20 rounded-lg border border-white/30"

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { pokes, user } from "@/db/schema";
+import { pokes, user } from "@/db/schema/auth";
 import { getUserPokesData } from "@/lib/get-user-pokes-data";
 import logger from "@/lib/logger";
 import { notifyTargetUser } from "@/lib/notify-target-user";
@@ -242,7 +242,7 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
           id: user.id,
           name: user.name,
           username: user.username,
-          image: user.picture,
+          image: user.image,
           createdAt: user.createdAt,
         })
         .from(user)
@@ -346,7 +346,7 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
           id: user.id,
           name: user.name,
           username: user.username,
-          image: user.picture,
+          image: user.image,
         })
         .from(user)
         .where(eq(user.id, otherUserId))

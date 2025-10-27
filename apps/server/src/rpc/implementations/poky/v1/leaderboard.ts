@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { pokes, user } from "@/db/schema";
+import { pokes, user } from "@/db/schema/auth";
 import {
   generateFunnyFrenchName,
   generateFunnyPicture,
@@ -60,9 +60,9 @@ export class LeaderboardServiceImpl
           id: user.id,
           name: user.name,
           username: user.username,
-          image: user.picture,
+          image: user.image,
           usernameAnonymized: user.usernameAnonymized,
-          pictureAnonymized: user.pictureAnonymized,
+          pictureAnonymized: user.imageAnonymized,
         })
         .from(user)
         .where(inArray(user.id, Array.from(userIds)));
@@ -89,7 +89,7 @@ export class LeaderboardServiceImpl
             }
           : {
               username: userA.usernameAnonymized ?? "",
-              picture: userA.pictureAnonymized ?? "",
+              picture: userA.imageAnonymized ?? "",
             };
 
         const userBData = relation.visibleLeaderboard
@@ -99,7 +99,7 @@ export class LeaderboardServiceImpl
             }
           : {
               username: userB.usernameAnonymized ?? "",
-              picture: userB.pictureAnonymized ?? "",
+              picture: userB.imageAnonymized ?? "",
             };
 
         return {
@@ -133,7 +133,7 @@ export class LeaderboardServiceImpl
       const [userData] = await db
         .select({
           usernameAnonymized: user.usernameAnonymized,
-          pictureAnonymized: user.pictureAnonymized,
+          pictureAnonymized: user.imageAnonymized,
         })
         .from(user)
         .where(eq(user.id, currentUserId))
@@ -145,7 +145,7 @@ export class LeaderboardServiceImpl
 
       const dataMessage = create(GetUserAnonymizedDataResponseSchema, {
         usernameAnonymized: userData.usernameAnonymized ?? "",
-        pictureAnonymized: userData.pictureAnonymized ?? "",
+        pictureAnonymized: userData.imageAnonymized ?? "",
       });
       return dataMessage;
     } catch (error) {
