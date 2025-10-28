@@ -8,23 +8,12 @@ import { auth } from "@poky/auth";
 // INTERCEPTOR
 // -----------------------------------------------------------------------------
 export const authInterceptor: Interceptor = (next) => async (req) => {
-  const authHeader = req.header.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")){
-    logger.error("Missing or invalid Authorization header");
-    throw new ConnectError(
-      "Missing or invalid Authorization header",
-      Code.Unauthenticated,
-    );
-  };
-  
-  const session = await auth.api.getSession({
-    headers: req.header,
-  });
+  const session = await auth.api.getSession({ headers: req.header });
 
   if (!session) {
-    logger.error("Missing or invalid Authorization header");
+    logger.error("Unauthenticated: missing or invalid session");
     throw new ConnectError(
-      "Missing or invalid Authorization header",
+      "Unauthenticated",
       Code.Unauthenticated,
     );
   }
