@@ -14,7 +14,7 @@ export const user = pgTable("user", {
   username: text("username").default("").notNull(),
   // Non default fields for anonymization
   usernameAnonymized: text("username_anon").notNull(),
-  pictureAnonymized: text("picture_anon").notNull(),
+  imageAnonymized: text("picture_anon").notNull(),
 });
 
 export const session = pgTable("session", {

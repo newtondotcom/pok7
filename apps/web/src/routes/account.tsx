@@ -271,7 +271,7 @@ function AccountPage() {
                           <Loader />
                         ) : anonymizedDataQuery.data? (
                           <img
-                            src={anonymizedDataQuery.data.pictureAnonymized}
+                            src={anonymizedDataQuery.data.imageAnonymized}
                             alt="Anonymous avatar"
                             className="w-full h-full object-cover"
                           />

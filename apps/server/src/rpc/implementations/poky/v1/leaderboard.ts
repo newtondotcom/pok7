@@ -59,7 +59,7 @@ export class LeaderboardServiceImpl
           username: user.username,
           image: user.image,
           usernameAnonymized: user.usernameAnonymized,
-          pictureAnonymized: user.pictureAnonymized,
+          imageAnonymized: user.imageAnonymized,
         })
         .from(user)
         .where(inArray(user.id, Array.from(userIds)));
@@ -86,7 +86,7 @@ export class LeaderboardServiceImpl
             }
           : {
               username: userA.usernameAnonymized ?? "",
-              picture: userA.pictureAnonymized ?? "",
+              picture: userA.imageAnonymized ?? "",
             };
 
         const userBData = relation.visibleLeaderboard
@@ -96,7 +96,7 @@ export class LeaderboardServiceImpl
             }
           : {
               username: userB.usernameAnonymized ?? "",
-              picture: userB.pictureAnonymized ?? "",
+              picture: userB.imageAnonymized ?? "",
             };
 
         return {
@@ -130,7 +130,7 @@ export class LeaderboardServiceImpl
       const [userData] = await db
         .select({
           usernameAnonymized: user.usernameAnonymized,
-          pictureAnonymized: user.pictureAnonymized,
+          imageAnonymized: user.imageAnonymized,
         })
         .from(user)
         .where(eq(user.id, currentUserId))
@@ -142,7 +142,7 @@ export class LeaderboardServiceImpl
 
       const dataMessage = create(GetUserAnonymizedDataResponseSchema, {
         usernameAnonymized: userData.usernameAnonymized ?? "",
-        pictureAnonymized: userData.pictureAnonymized ?? "",
+        imageAnonymized: userData.imageAnonymized ?? "",
       });
       return dataMessage;
     } catch (error) {
@@ -213,12 +213,12 @@ export class LeaderboardServiceImpl
       await db
         .update(user)
         .set({
-          pictureAnonymized: newPicture,
+          imageAnonymized: newPicture,
           updatedAt: new Date(),
         })
         .where(eq(user.id, userId));
 
-      return { pictureAnonymized: newPicture };
+      return { imageAnonymized: newPicture };
     } catch (error) {
       logger.error("Error refreshing anonymized picture:", { error });
       throw new Error("Failed to refresh anonymized picture");

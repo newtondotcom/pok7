@@ -20,7 +20,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 			defaultValue: "",
 			input: false,
 		  },
-		  pictureAnonymized: {
+		  imageAnonymized: {
 			type: "string",
 			required: true,
 			defaultValue: "",
@@ -71,7 +71,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 					const [existingUser] = await db
 					  .select({
 						usernameAnonymized: user.usernameAnonymized,
-						pictureAnonymized: user.pictureAnonymized,
+						imageAnonymized: user.imageAnonymized,
 					  })
 					  .from(user)
 					  .where(eq(user.id, userId))
@@ -79,7 +79,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 	
 					let anonymizedData: {
 					  usernameAnonymized: string | null;
-					  pictureAnonymized: string | null;
+					  imageAnonymized: string | null;
 					};
 	
 					// Only generate new anonymized data if user doesn't exist
@@ -89,7 +89,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 					  // Use existing anonymized data
 					  anonymizedData = {
 						usernameAnonymized: existingUser.usernameAnonymized,
-						pictureAnonymized: existingUser.pictureAnonymized,
+						imageAnonymized: existingUser.imageAnonymized,
 					  };
 					}
 	
@@ -102,7 +102,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 						updatedAt: new Date(),
 						email : userInfo.email,
 						usernameAnonymized: anonymizedData.usernameAnonymized,
-						pictureAnonymized: anonymizedData.pictureAnonymized,
+						imageAnonymized: anonymizedData.imageAnonymized,
 						emailVerified : userInfo.email_verified,
 					}
 					console.log("User info received", { userLocal });
