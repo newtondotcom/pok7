@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { UserPokes } from "@/components/user-pokes";
 import { Navigation } from "@/components/navigation";
 import UserMenu from "@/components/user-menu";
 import { useEffect } from 'react';
 import { toast } from '@pheralb/toast';
-import { useNavigate } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import Loader from "@/components/loader";
 
@@ -13,12 +12,8 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
-  const navigate = useNavigate();
   const { data: session, isPending } = authClient.useSession();
-
-  if (isPending) {
-    return <Loader />;
-  }
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (session) {
@@ -37,6 +32,10 @@ function HomeComponent() {
       }
     }
   }, [session, navigate]);
+
+  if (isPending) {
+    return <Loader />;
+  }
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
