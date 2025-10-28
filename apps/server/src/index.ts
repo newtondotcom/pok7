@@ -5,22 +5,20 @@ import fastifyCors from "@fastify/cors";
 import { cors as connectCors } from "@connectrpc/connect";
 import { authInterceptor } from "@/rpc/interceptor";
 import logger from "@/lib/logger";
-import { auth } from "@/lib/auth";
+import { auth } from "@poky/auth";
 
 async function startServer() {
   const server = fastify();
   
   // Configuration CORS pour production
-  const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:3001', 'https://poky-eta.vercel.app'];
+  const allowedOrigin = process.env.CORS_ORIGIN || "";
   
   await server.register(fastifyCors, {
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, etc.)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigin === origin) {
         return callback(null, true);
       }
       

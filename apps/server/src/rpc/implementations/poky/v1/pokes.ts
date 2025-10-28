@@ -1,5 +1,6 @@
-import { db } from "@/db";
-import { pokes, user } from "@/db/schema/auth";
+import { db, and, eq, like, not, or  } from "@poky/db";
+import { user } from "@poky/db/schema/auth";
+import { pokes } from "@poky/db/schema/poky";
 import { getUserPokesData } from "@/lib/get-user-pokes-data";
 import logger from "@/lib/logger";
 import { notifyTargetUser } from "@/lib/notify-target-user";
@@ -24,7 +25,6 @@ import {
 import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { Code, ConnectError, type HandlerContext, type ServiceImpl } from "@connectrpc/connect";
-import { and, eq, like, not, or } from "drizzle-orm";
 
 const sub = redisService.getSubscriber();
 const pub = redisService.getPublisher();

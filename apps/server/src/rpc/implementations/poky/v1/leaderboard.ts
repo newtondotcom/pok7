@@ -1,9 +1,7 @@
-import { db } from "@/db";
-import { pokes, user } from "@/db/schema/auth";
-import {
-  generateFunnyFrenchName,
-  generateFunnyPicture,
-} from "@/lib/anonymization";
+import { db, desc, eq, inArray, or, and } from "@poky/db";
+import { user } from "@poky/db/schema/auth";
+import { pokes } from "@poky/db/schema/poky";
+import { generateFunnyFrenchName, generateFunnyPicture } from "@poky/db/utils/anonymization";
 import logger from "@/lib/logger";
 import { kUserId } from "@/rpc/context";
 import {
@@ -18,7 +16,6 @@ import {
 import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import type { HandlerContext, ServiceImpl } from "@connectrpc/connect";
-import { and, desc, eq, inArray, or } from "drizzle-orm";
 
 export class LeaderboardServiceImpl
   implements ServiceImpl<typeof LeaderboardService>
@@ -62,7 +59,7 @@ export class LeaderboardServiceImpl
           username: user.username,
           image: user.image,
           usernameAnonymized: user.usernameAnonymized,
-          pictureAnonymized: user.imageAnonymized,
+          pictureAnonymized: user.pictureAnonymized,
         })
         .from(user)
         .where(inArray(user.id, Array.from(userIds)));
@@ -89,7 +86,7 @@ export class LeaderboardServiceImpl
             }
           : {
               username: userA.usernameAnonymized ?? "",
-              picture: userA.imageAnonymized ?? "",
+              picture: userA.pictureAnonymized ?? "",
             };
 
         const userBData = relation.visibleLeaderboard
@@ -99,7 +96,7 @@ export class LeaderboardServiceImpl
             }
           : {
               username: userB.usernameAnonymized ?? "",
-              picture: userB.imageAnonymized ?? "",
+              picture: userB.pictureAnonymized ?? "",
             };
 
         return {
@@ -125,7 +122,7 @@ export class LeaderboardServiceImpl
   }
 
   async getUserAnonymizedData(
-    req: GetUserAnonymizedDataRequest,
+    _req: GetUserAnonymizedDataRequest,
     context: HandlerContext,
   ) {
     const currentUserId = context.values.get(kUserId);
@@ -133,7 +130,7 @@ export class LeaderboardServiceImpl
       const [userData] = await db
         .select({
           usernameAnonymized: user.usernameAnonymized,
-          pictureAnonymized: user.imageAnonymized,
+          pictureAnonymized: user.pictureAnonymized,
         })
         .from(user)
         .where(eq(user.id, currentUserId))
@@ -145,7 +142,7 @@ export class LeaderboardServiceImpl
 
       const dataMessage = create(GetUserAnonymizedDataResponseSchema, {
         usernameAnonymized: userData.usernameAnonymized ?? "",
-        pictureAnonymized: userData.imageAnonymized ?? "",
+        pictureAnonymized: userData.pictureAnonymized ?? "",
       });
       return dataMessage;
     } catch (error) {
@@ -229,7 +226,7 @@ export class LeaderboardServiceImpl
   }
 
   async refreshAnonymizedName(
-    req: RefreshAnonymizedNameRequest,
+    _req: RefreshAnonymizedNameRequest,
     context: HandlerContext,
   ) {
     try {

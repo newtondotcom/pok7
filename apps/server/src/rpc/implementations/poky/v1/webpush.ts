@@ -1,12 +1,11 @@
-import { db } from "@/db";
-import { devices, webpush } from "@/db/schema/auth";
+import { db, and, eq  } from "@poky/db";
+import { devices, webpush } from "@poky/db/schema/poky";
 import logger from "@/lib/logger";
 import { sendWebPush } from "@/lib/webpush";
 import { kUserId } from "@/rpc/context";
 import { GetWebPushResponseSchema, type DeleteWebPushRequest, type GetWebPushRequest, type RegisterWebPushRequest, type TestWebPushRequest, type WebPushService } from "@/rpc/proto/poky/v1/webpush_service_pb";
 import { create } from "@bufbuild/protobuf";
 import { Code, ConnectError, type HandlerContext, type ServiceImpl } from "@connectrpc/connect";
-import { and, eq } from "drizzle-orm";
 
 export class WebpushServiceImpl implements ServiceImpl<typeof WebPushService> {
   async registerWebPush(req : RegisterWebPushRequest, context: HandlerContext){

@@ -1,8 +1,8 @@
-import { db } from "@/db";
-import { pokes, user } from "@/db/schema/auth";
+import { db, eq, or  } from "@poky/db";
+import { user } from "@poky/db/schema/auth";
+import { pokes } from "@poky/db/schema/poky";
 import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { eq, or } from "drizzle-orm";
 import logger from "./logger";
 import { GetUserPokesResponseSchema, UserPokeRelationSchema } from "@/rpc/proto/poky/v1/pokes_service_pb";
 
