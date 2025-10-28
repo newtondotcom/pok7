@@ -1,180 +1,25 @@
-import { db } from "@/db";
-import { user } from "@/db/schema";
-import { generateUserAnonymizedData } from "@/lib/anonymization";
 import type { Interceptor } from "@connectrpc/connect";
 import { Code, ConnectError } from "@connectrpc/connect";
-import { eq } from "drizzle-orm";
-import { createRemoteJWKSet, jwtVerify } from "jose";
 import { kUserId } from "./context";
 import logger from "@/lib/logger";
-
-// -----------------------------------------------------------------------------
-// CONFIG
-// -----------------------------------------------------------------------------
-const JWKS_URI = "https://myr-project.eu/application/o/newton/jwks/";
-const USER_INFO_URI = "https://myr-project.eu/application/o/userinfo/";
-const AUDIENCE = "t9xFI53nHMTMRduUB1Kt2fUpV1IcFOfNXUZHjpmZ";
-
-// Simple in-memory cache (can be swapped with Redis)
-const tokenCache = new Map<string, { userId: string; exp: number }>();
-
-const JWKS = createRemoteJWKSet(new URL(JWKS_URI));
-
-// -----------------------------------------------------------------------------
-// TOKEN VERIFICATION
-// -----------------------------------------------------------------------------
-async function verifyToken(token: string) {
-  try {
-    const { payload } = await jwtVerify(token, JWKS, {
-      audience: AUDIENCE,
-      issuer: "https://myr-project.eu/application/o/newton/",
-    });
-    return payload;
-  } catch (error) {
-    logger.error(error);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// USER CREATION (NON-BLOCKING)
-// -----------------------------------------------------------------------------
-
-// Non-blocking user creation function
-async function createUserInBackgroundIfNeeded(oauthToken: any, userId: string) {
-  try {
-    // First check if user already exists
-    const [existing] = await db
-      .select()
-      .from(user)
-      .where(eq(user.id, userId))
-      .limit(1);
-
-    // Fetch user info from OAuth provider
-    const userInfo = await fetchUserInfo(oauthToken) as {
-      preferred_username : string,
-      picture : string,
-      email : string,
-      email_verified : boolean,
-      name? : string
-    };
-
-    if (existing) {
-      // Check if values have changed and update if necessary
-      const hasChanged = 
-        existing.username !== (userInfo.preferred_username || "") ||
-        existing.picture !== (userInfo.picture || null) ||
-        existing.email !== userInfo.email
-
-      if (hasChanged) {
-        logger.debug(`User data changed for ${userId}, updating...`);
-        await db
-          .update(user)
-          .set({
-            username: userInfo.preferred_username,
-            picture: userInfo.picture,
-            email: userInfo.email || "none",
-            updatedAt: new Date(),
-          })
-          .where(eq(user.id, userId));
-        logger.debug(`User data updated for: ${userId}`);
-      } else {
-        logger.debug(`User data unchanged for: ${userId}`);
-      }
-      return;
-    }
-
-
-    const anonymized = generateUserAnonymizedData(userId);
-
-    const newUser = {
-      id: userId,
-      name: userInfo.name || "none",
-      username: userInfo.preferred_username,
-      picture: userInfo.picture,
-      email: userInfo.email || "none",
-      emailVerified: true,
-      usernameAnonymized: anonymized.usernameAnonymized,
-      pictureAnonymized: anonymized.pictureAnonymized,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    await db.insert(user).values(newUser);
-    logger.debug(`User created in background: ${userId}`);
-  } catch (error) {
-    logger.error(`Failed to create/update user in background: ${userId}`, error);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// USER INFO ENDPOINT
-// -----------------------------------------------------------------------------
-async function fetchUserInfo(accessToken: string) {
-  const response = await fetch(USER_INFO_URI, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch user info: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  return await response.json();
-}
+import { auth } from "@poky/auth";
 
 // -----------------------------------------------------------------------------
 // INTERCEPTOR
 // -----------------------------------------------------------------------------
 export const authInterceptor: Interceptor = (next) => async (req) => {
-  const authHeader = req.header.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")){
-    logger.error("Missing or invalid Authorization header");
+  const session = await auth.api.getSession({ headers: req.header });
+
+  if (!session) {
+    logger.error("Unauthenticated: missing or invalid session");
     throw new ConnectError(
-      "Missing or invalid Authorization header",
+      "Unauthenticated",
       Code.Unauthenticated,
     );
-  };
-
-  const token = authHeader.slice("Bearer ".length);
-
-  // 🔍 Check cache
-  const cached = tokenCache.get(token);
-  const now = Math.floor(Date.now() / 1000);
-  if (cached && cached.exp > now) {
-    // still valid
-    req.contextValues.set(kUserId, cached.userId);
-    return next(req);
   }
-
-  // 🔐 Verify token
-  let payload;
-  try {
-    payload = await verifyToken(token);
-  } catch (err) {
-    logger.error("Token verification failed:", err);
-    throw new ConnectError("Invalid or expired token", Code.Unauthenticated);
-  }
-
-  // 🧾 Get user ID from payload and ensure user exists in background
-  const userId = payload?.sub;
-  if (!userId) {
-    throw new ConnectError("Invalid token: missing user ID", Code.Unauthenticated);
-  }
-
-  // Ensure user exists in database (non-blocking)
-  createUserInBackgroundIfNeeded(token,userId);
-  
-  logger.debug("user ID added to context")
-
-  // 🧠 Cache it until the JWT expires
-  tokenCache.set(token, {
-    userId: userId,
-    exp: payload?.exp || now + 3600, // fallback: 1 hour
-  });
 
   // Add user ID to context
-  req.contextValues.set(kUserId, userId);
+  req.contextValues.set(kUserId, session?.user.id);
 
   return next(req);
 };

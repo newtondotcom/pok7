@@ -198,7 +198,7 @@ export type GetUserAnonymizedDataResponse = Message<"proto.poky.v1.GetUserAnonym
   /**
    * @generated from field: string picture_anonymized = 2;
    */
-  pictureAnonymized: string;
+  imageAnonymized: string;
 };
 
 /**
@@ -230,7 +230,7 @@ export type RefreshAnonymizedPictureResponse = Message<"proto.poky.v1.RefreshAno
   /**
    * @generated from field: string picture_anonymized = 1;
    */
-  pictureAnonymized: string;
+  imageAnonymized: string;
 };
 
 /**

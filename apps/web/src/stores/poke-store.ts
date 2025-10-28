@@ -1,11 +1,10 @@
-import { create } from "zustand";
-import { useShallow } from "zustand/react/shallow";
-import { useContext, useMemo, useEffect, useRef } from "react";
+import { PokesService, type UserPokeRelation } from "@/rpc/proto/poky/v1/pokes_service_pb";
+import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { createCallbackClient, type ConnectError } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import { PokesService, type UserPokeRelation } from "@/rpc/proto/poky/v1/pokes_service_pb";
-import { AuthContext, type IAuthContext } from "react-oauth2-code-pkce";
-import { timestampDate} from "@bufbuild/protobuf/wkt";
+import { useEffect, useMemo } from "react";
+import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 
 // -------------------
 // Zustand store
@@ -83,26 +82,10 @@ export const usePokeStore = create<PokeStore>((set, get) => ({
 // Hook: create client with token
 // -------------------
 export const usePokesClient = () => {
-  const { token } = useContext<IAuthContext>(AuthContext);
-  const tokenRef = useRef(token);
-
-  // Update the ref whenever token changes
-  useEffect(() => {
-    tokenRef.current = token;
-  }, [token]);
-
   const client = useMemo(() => {
     const transport = createConnectTransport({
       baseUrl: import.meta.env.VITE_SERVER_URL,
-      interceptors: [
-        (next) => (request) => {
-          const token = JSON.parse(window.localStorage.getItem("ROCP_token"));
-          if (token) {
-            request.header.append("authorization", `Bearer ${token}`);
-          }
-          return next(request);
-        },
-      ],
+      fetch: (input, init) => fetch(input, {...init, credentials: "include"}),
       defaultTimeoutMs : 20*60*1000
     });
 
@@ -117,7 +100,7 @@ export const usePokesClient = () => {
 // -------------------
 export const usePokeData = () => {
   const client = usePokesClient();
-  const { setPokesData, setLoading, setError, setConnectionStatus, retry, retryCount } = usePokeStore(
+  const { setPokesData, setLoading, setError, setConnectionStatus, retryCount } = usePokeStore(
     useShallow((state) => ({
       setPokesData: state.setPokesData,
       setLoading: state.setLoading,

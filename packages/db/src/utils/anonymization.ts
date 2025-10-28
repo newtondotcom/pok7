@@ -83,6 +83,6 @@ export function generateFunnyPicture(seed?: string): string {
 export function generateUserAnonymizedData(userId: string) {
   return {
     usernameAnonymized: generateFunnyFrenchName(userId),
-    pictureAnonymized: generateFunnyPicture(userId),
+    imageAnonymized: generateFunnyPicture(userId),
   };
 }

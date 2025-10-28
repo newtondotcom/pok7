@@ -34,7 +34,7 @@ export function PokeButton({
         targetUserId
       });
     } catch (err) {
-      toast.error({ text: `Failed to poke ${targetUserName}` });
+      toast.error({ text: `Failed to poke ${targetUserName} with ${err}` });
     }
   };
 

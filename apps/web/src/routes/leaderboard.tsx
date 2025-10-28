@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Leaderboard } from "@/components/leaderboard";
-import { useContext } from "react";
-import { type IAuthContext, AuthContext } from "react-oauth2-code-pkce";
+import { authClient } from "@/lib/auth-client";
+import Loader from "@/components/loader";
 
 export const Route = createFileRoute("/leaderboard")({
   component: LeaderboardPage,
@@ -11,10 +11,14 @@ export const Route = createFileRoute("/leaderboard")({
 
 function LeaderboardPage() {
   const navigate = useNavigate();
-  const { token}: IAuthContext = useContext(AuthContext);
-  if (!token) {
+  const { data: session, isPending } = authClient.useSession();
+  if (!session) {
       navigate({ to: "/" });
       return null;
+  }
+
+  if (isPending) {
+    return <Loader />;
   }
 
   return (

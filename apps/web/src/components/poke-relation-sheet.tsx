@@ -54,7 +54,7 @@ export function PokeRelationSheet({ isOpen, onOpenChange, selectedRelation }: Po
 
   // Placeholder for delete relation mutation (to be implemented later)
   const deleteRelationMutation = useMutation({
-    mutationFn: async (relationId: string) => {
+    mutationFn: async (_relationId: string) => {
       // TODO: Implement delete relation API call
       throw new Error("Delete relation function not implemented yet");
     },

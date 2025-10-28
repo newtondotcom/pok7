@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
@@ -54,13 +54,7 @@ const router = createRouter({
       () =>
         createConnectTransport({
           baseUrl: import.meta.env.VITE_SERVER_URL,
-          interceptors: [
-            (next) => (request) => {
-              const token = JSON.parse(window.localStorage.getItem("ROCP_token"));
-              if (token) request.header.append("authorization", `Bearer ${token}`);
-              return next(request);
-            },
-          ],
+          fetch: (input, init) => fetch(input, {...init, credentials: "include"}),
         }),
       [],
     );
