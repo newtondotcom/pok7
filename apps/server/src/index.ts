@@ -9,39 +9,39 @@ import { auth } from "@poky/auth";
 
 async function startServer() {
   const server = fastify();
-  
+
   // Configuration CORS pour production
   const allowedOrigin = process.env.CORS_ORIGIN || "";
-  
+
   await server.register(fastifyCors, {
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, etc.)
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigin === origin) {
         return callback(null, true);
       }
-      
+
       logger.warn(`CORS blocked origin: ${origin}`);
-      return callback(new Error('Not allowed by CORS'), false);
+      return callback(new Error("Not allowed by CORS"), false);
     },
     methods: [...connectCors.allowedMethods],
     allowedHeaders: [...connectCors.allowedHeaders, "Authorization"],
     exposedHeaders: [...connectCors.exposedHeaders],
     credentials: true,
   });
-  
+
   await server.register(fastifyConnectPlugin, {
     routes,
     interceptors: [authInterceptor],
   });
-  
+
   server.get("/", (_, reply) => {
     reply.type("text/plain");
     reply.code(200);
     reply.send("Hello World!");
   });
-  
+
   // Health check endpoint for Traefik
   server.get("/health", (_, reply) => {
     reply.type("application/json");
@@ -50,7 +50,7 @@ async function startServer() {
       status: "healthy",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      version: process.env.npm_package_version || "1.0.0"
+      version: process.env.npm_package_version || "1.0.0",
     });
   });
 
@@ -61,42 +61,41 @@ async function startServer() {
       try {
         // Construct request URL
         const url = new URL(request.url, `http://${request.headers.host}`);
-        
+
         // Convert Fastify headers to standard Headers object
         const headers = new Headers();
         Object.entries(request.headers).forEach(([key, value]) => {
           if (value) headers.append(key, value.toString());
         });
-  
+
         // Create Fetch API-compatible request
         const req = new Request(url.toString(), {
           method: request.method,
           headers,
           body: request.body ? JSON.stringify(request.body) : undefined,
         });
-  
+
         // Process authentication request
         const response = await auth.handler(req);
-  
+
         // Forward response to client
         reply.status(response.status);
         response.headers.forEach((value, key) => reply.header(key, value));
         reply.send(response.body ? await response.text() : null);
-  
       } catch (error) {
         logger.error("Authentication Error:", error);
-        reply.status(500).send({ 
+        reply.status(500).send({
           error: "Internal authentication error",
-          code: "AUTH_FAILURE"
+          code: "AUTH_FAILURE",
         });
       }
-    }
+    },
   });
-  
+
   // Configuration serveur pour production
   const host = process.env.HOST || "0.0.0.0";
   const port = parseInt(process.env.PORT || "3000");
-  
+
   await server.listen({ host, port });
   logger.info(`Server is listening at http://${host}:${port}`);
 }

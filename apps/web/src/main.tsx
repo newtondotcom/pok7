@@ -4,7 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { TransportProvider } from "@connectrpc/connect-query";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import Loader from "./components/loader";
+import Loader from "@/components/loader";
 import { toast } from "@pheralb/toast";
 import { routeTree } from "./routeTree.gen";
 

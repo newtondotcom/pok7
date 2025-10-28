@@ -1,4 +1,4 @@
-import { db, and, eq, like, not, or  } from "@poky/db";
+import { db, and, eq, like, not, or } from "@poky/db";
 import { user } from "@poky/db/schema/auth";
 import { pokes } from "@poky/db/schema/poky";
 import { getUserPokesData } from "@/lib/get-user-pokes-data";
@@ -24,7 +24,12 @@ import {
 } from "@/rpc/proto/poky/v1/pokes_service_pb";
 import { create } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { Code, ConnectError, type HandlerContext, type ServiceImpl } from "@connectrpc/connect";
+import {
+  Code,
+  ConnectError,
+  type HandlerContext,
+  type ServiceImpl,
+} from "@connectrpc/connect";
 
 const sub = redisService.getSubscriber();
 const pub = redisService.getPublisher();
@@ -59,7 +64,7 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
     try {
       // Get Redis connection from pool
       const sub = await getRedisConnection(currentUserId);
-      
+
       // Subscribe to the channel
       await sub.subscribe(currentUserId);
       logger.debug(`Subscribed to Redis channel: ${currentUserId}`);
@@ -69,7 +74,7 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
         logger.debug(`Waiting for message on channel: ${currentUserId}`);
         await new Promise<string>((resolve, reject) => {
           let isResolved = false;
-          
+
           // Create a one-time message handler
           const messageHandler = (ch: string, msg: string) => {
             if (ch === currentUserId && !isResolved) {
@@ -115,7 +120,7 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
 
     // Prevent self-poking
     if (currentUserId === targetUserId) {
-      logger.error("poke yourself")
+      logger.error("poke yourself");
       throw new Error("You cannot poke yourself");
     }
 
@@ -128,7 +133,7 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
         .limit(1);
 
       if (!targetUser) {
-        logger.error("targe user not found")
+        logger.error("targe user not found");
         throw new Error("Target user not found");
       }
 
@@ -340,7 +345,10 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
       }
 
       // Get the other user's details
-      const otherUserId = relation.userAId === currentUserId ? relation.userBId : relation.userAId;
+      const otherUserId =
+        relation.userAId === currentUserId
+          ? relation.userBId
+          : relation.userAId;
       const [otherUser] = await db
         .select({
           id: user.id,

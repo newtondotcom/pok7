@@ -1,7 +1,10 @@
 import { db, desc, eq, inArray, or, and } from "@poky/db";
 import { user } from "@poky/db/schema/auth";
 import { pokes } from "@poky/db/schema/poky";
-import { generateFunnyFrenchName, generateFunnyPicture } from "@poky/db/utils/anonymization";
+import {
+  generateFunnyFrenchName,
+  generateFunnyPicture,
+} from "@poky/db/utils/anonymization";
 import logger from "@/lib/logger";
 import { kUserId } from "@/rpc/context";
 import {

@@ -7,7 +7,9 @@ import { WebPushService } from "./proto/poky/v1/webpush_service_pb";
 import { WebpushServiceImpl } from "./implementations/poky/v1/webpush";
 
 export default (router: ConnectRouter) => {
-  router.service(PokesService, new PokesServiceImpl(), {maxTimeoutMs : 20*60*1000});
+  router.service(PokesService, new PokesServiceImpl(), {
+    maxTimeoutMs: 20 * 60 * 1000,
+  });
   router.service(LeaderboardService, new LeaderboardServiceImpl());
-  router.service(WebPushService, new WebpushServiceImpl())
+  router.service(WebPushService, new WebpushServiceImpl());
 };

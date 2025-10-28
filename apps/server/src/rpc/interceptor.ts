@@ -12,10 +12,7 @@ export const authInterceptor: Interceptor = (next) => async (req) => {
 
   if (!session) {
     logger.error("Unauthenticated: missing or invalid session");
-    throw new ConnectError(
-      "Unauthenticated",
-      Code.Unauthenticated,
-    );
+    throw new ConnectError("Unauthenticated", Code.Unauthenticated);
   }
 
   // Add user ID to context
