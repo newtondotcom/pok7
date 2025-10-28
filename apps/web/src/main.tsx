@@ -4,24 +4,10 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { TransportProvider } from "@connectrpc/connect-query";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import { AuthProvider } from "react-oauth2-code-pkce";
 import Loader from "./components/loader";
 import { toast } from "@pheralb/toast";
 import { routeTree } from "./routeTree.gen";
-import type { TAuthConfig, TRefreshTokenExpiredEvent } from "react-oauth2-code-pkce";
 
-// -------------------
-// Auth config
-// -------------------
-const authConfig: TAuthConfig = {
-  clientId: "t9xFI53nHMTMRduUB1Kt2fUpV1IcFOfNXUZHjpmZ",
-  authorizationEndpoint: "https://myr-project.eu/application/o/authorize/",
-  tokenEndpoint: "https://myr-project.eu/application/o/token/",
-  redirectUri: window.location.origin,
-  scope: "profile openid offline_access picture email",
-  autoLogin : false,
-  onRefreshTokenExpire: (event: TRefreshTokenExpiredEvent) => event.logIn(undefined,undefined, "redirect"),
-};
 
 // -------------------
 // React Query client
@@ -60,13 +46,11 @@ const router = createRouter({
     );
 
     return (
-      <AuthProvider authConfig={authConfig}>
     <TransportProvider transport={transport}>
       <QueryClientProvider client={queryClient}>
         {children}
     </QueryClientProvider>
     </TransportProvider>
-    </AuthProvider>
     );
   },
 });
