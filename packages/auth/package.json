@@ -24,7 +24,6 @@
     "@poky/db": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "drizzle-orm": "^0.44.7",
     "zod": "catalog:"
   }
 }
