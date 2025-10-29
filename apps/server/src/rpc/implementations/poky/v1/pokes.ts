@@ -165,9 +165,9 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
       if (existingRelation) {
 
         // Check if it is the user turn to poke
-        if (existingRelation.lastPokeBy !== currentUserId) {
-          logger.error("not your turn to poke");
-          throw new Error("Not your turn to poke");
+        if (existingRelation.lastPokeBy === currentUserId) {
+          logger.error("you have already poked this user");
+          throw new Error("You have already poked this user");
         }
 
         // Update existing relation
