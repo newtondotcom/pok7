@@ -24,6 +24,7 @@
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev",
+    "compile:server": "turbo -F backend compile",
     "db:push": "turbo -F @poky/db db:push",
     "db:studio": "turbo -F @poky/db db:studio",
     "db:generate": "turbo -F @poky/db db:generate",

@@ -2,28 +2,34 @@
 FROM oven/bun AS builder
 WORKDIR /usr/src/app
 
-# Copy dependency manifests first (for caching)
-COPY package.json ./
+# Copy monorepo manifests to enable workspace install
+COPY package.json bun.lock turbo.json ./
+COPY apps/server/package.json apps/server/package.json
+COPY packages/auth/package.json packages/auth/package.json
+COPY packages/db/package.json packages/db/package.json
 
-# Install dependencies
-RUN bun install --frozen-lockfile
+# Install all workspace deps
+RUN bun install
 
-# Copy the rest of the source
+# Copy full repo (needed for build)
 COPY . .
 
-# Compile the app into a static binary
-RUN bun run compile && ls -la server
+# Build internal packages (generate dist/types)
+RUN bun run --cwd packages/db build && bun run --cwd packages/auth build
+
+# Compile server for target platform
+RUN bun compile:server && ls -la apps/server/server
 
 # ===== Runtime Stage =====
 FROM debian:12-slim AS runtime
 
 # Create non-root user
-RUN useradd -r -u 1001 -s /bin/false appuser
+RUN useradd -r -u 989 -s /bin/false appuser
 
 WORKDIR /app
 
-# Copy binary from build stage
-COPY --from=builder /usr/src/app/server ./server
+# Copy compiled binary from builder
+COPY --from=builder /usr/src/app/apps/server/server ./server
 
 # Ensure permissions
 RUN chown appuser:appuser ./server && chmod +x ./server
