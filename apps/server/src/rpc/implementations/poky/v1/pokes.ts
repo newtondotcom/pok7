@@ -163,6 +163,13 @@ export class PokesServiceImpl implements ServiceImpl<typeof PokesService> {
         .limit(1);
 
       if (existingRelation) {
+
+        // Check if it is the user turn to poke
+        if (existingRelation.lastPokeBy !== currentUserId) {
+          logger.error("not your turn to poke");
+          throw new Error("Not your turn to poke");
+        }
+
         // Update existing relation
         const newCount = existingRelation.count + 1;
         const now = new Date();
