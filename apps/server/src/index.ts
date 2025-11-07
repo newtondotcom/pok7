@@ -22,7 +22,7 @@ async function startServer() {
         return callback(null, true);
       }
 
-      logger.warn(`CORS blocked origin: ${origin}`);
+      logger.error(`CORS blocked origin: ${origin}`);
       return callback(new Error("Not allowed by CORS"), false);
     },
     methods: [...connectCors.allowedMethods],
