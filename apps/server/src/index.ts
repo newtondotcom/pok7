@@ -22,8 +22,8 @@ async function startServer() {
         return callback(null, true);
       }
 
-      logger.error(`CORS blocked origin: ${origin}`);
-      return callback(new Error("Not allowed by CORS"), false);
+      logger.debug(`CORS blocked origin: ${origin}`);
+      return callback(new Error(f`Not allowed by CORS from ${origin}`), false);
     },
     methods: [...connectCors.allowedMethods],
     allowedHeaders: [...connectCors.allowedHeaders, "Authorization"],
