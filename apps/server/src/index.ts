@@ -11,14 +11,14 @@ async function startServer() {
   const server = fastify();
 
   // Configuration CORS pour production
-  const allowedOrigin = process.env.CORS_ORIGIN || "";
+  const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
 
   await server.register(fastifyCors, {
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, etc.)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigin === origin) {
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
