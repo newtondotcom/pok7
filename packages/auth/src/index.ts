@@ -126,12 +126,12 @@ export const auth = betterAuth<BetterAuthOptions>({
   ],
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
-  trustedOrigins: [process.env.CORS_ORIGIN || ""],
+  trustedOrigins: [process.env.CORS_ORIGIN?.split(",").join(",") || ""],
   advanced: {
     defaultCookieAttributes: {
       sameSite: "none",
       secure: true,
       httpOnly: true,
     },
-  },
+  }
 });
