@@ -23,6 +23,7 @@
   "dependencies": {
     "@poky/db": "workspace:*",
     "better-auth": "catalog:",
+    "@better-auth/expo": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
   }

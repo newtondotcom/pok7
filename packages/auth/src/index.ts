@@ -1,4 +1,4 @@
-import { betterAuth, type BetterAuthOptions } from "better-auth";
+import { betterAuth, type BetterAuthOptions, type BetterAuthPlugin } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@poky/db";
 import * as schema from "@poky/db/schema/auth";
@@ -7,6 +7,23 @@ import { eq } from "@poky/db";
 import { generateUserAnonymizedData } from "@poky/db/utils/anonymization";
 import { user } from "@poky/db/schema/auth";
 import { expo } from "@better-auth/expo";
+
+export function skipStateMismatch(): BetterAuthPlugin {
+  return {
+    id: 'skip-state-mismatch',
+    init(ctx) {
+      return {
+        context: {
+          ...ctx,
+          oauthConfig: {
+            skipStateCookieCheck: true,
+            ...ctx?.oauthConfig,
+          },
+        },
+      }
+    },
+  }
+}
 
 export const auth = betterAuth<BetterAuthOptions>({
   database: drizzleAdapter(db, {
@@ -36,6 +53,7 @@ export const auth = betterAuth<BetterAuthOptions>({
     },
   },
   plugins: [
+    skipStateMismatch(),
     expo(),
     genericOAuth({
       config: [
