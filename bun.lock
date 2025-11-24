@@ -135,7 +135,7 @@
     },
   },
   "catalog": {
-    "better-auth": "^1.3.28",
+    "better-auth": "^1.3.13",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.6",
     "tsdown": "^0.15.5",
